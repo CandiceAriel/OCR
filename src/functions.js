@@ -35,7 +35,7 @@ function drawImage(url) {
       const dataURL = canvas2.toDataURL('image/jpeg');
 
       preprocessImage(canvas2);
-      scanImg(dataURL, 'eng+ces');
+      scanImg(dataURL, 'spa+ces');
   }
 }
 
