@@ -12,6 +12,8 @@
   "license": "ISC",
   "dependencies": {
     "browserify": "^17.0.0",
+    "mrz": "^3.4.0",
+    "mrz-scan": "^1.2.0",
     "sharp": "^0.32.2",
     "tesseract.js": "^4.1.1",
     "webpack": "^5.88.1",

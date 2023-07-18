@@ -1,6 +1,8 @@
-const { createWorker, PSM} = Tesseract;
-// const { createWorker } = require('tesseract.js');
-// import { createWorker } from 'tesseract.js';
+// const { createWorker, PSM} = Tesseract;
+var promises_1 = require("fs").promises;
+const { log } = require("console");
+const { createWorker } = require('tesseract.js');
+const parse = require('mrz').parse;
 
 const progress = document.getElementById('progress')
 const textarea = document.getElementById('textarea')
@@ -8,8 +10,6 @@ const canvas = document.getElementById("cv1")
 const canvas2 = document.getElementById("cv2")
 const ctx = cv1.getContext("2d");
 const ctx2 = cv2.getContext("2d");
-
-var imagePassport = new MarvinImage(); 
 
 document.querySelector('input[type="file"]').onchange = function() {
     let img = this.files[0]
@@ -88,10 +88,6 @@ async function scanImg(src,lang){
     } = await worker.recognize(src);
     await worker.terminate();
 
-    const lines = text.split("\n");
-    const lastTwoLines = lines.slice(-3);
-    const mergedText = lastTwoLines.join("\n");
-
     const textRegions = words.map((word) => word.bbox);
     ctx2.lineWidth = 2;
     ctx2.strokeStyle = "red";
@@ -111,8 +107,37 @@ async function scanImg(src,lang){
       dtTxt.push(txt)
     });
 
-    textarea.innerHTML = text;
-    console.log(text);
+    parseMRZ(text);
+}
+
+function parseMRZ(mrzTxt){
+  //Array for RAW parse result
+  const mrzArr= [];
+  //Array for mapped parse result
+  const ressArr = [
+    {
+      field: "",
+      val: ""
+    }
+  ];
+
+  const lines = mrzTxt.split("\n");
+  const lastTwoLines = lines.slice(-3);
+  const mergedText = lastTwoLines.join("\n");
+
+  const mrz = mergedText.split("\n")
+  const line1 = mrz[0];
+  const line2 = mrz[1];
+
+  mrzArr.push(line1, line2);
+  var result = parse(mrzArr);
+
+  const mrzRes = result.details.map(dt => ({ field: dt.field, value: dt.value }));
+  ressArr.push(mrzRes)
+
+  console.log(mrzRes);
+  const stringed = JSON.stringify(mrzRes)
+  textarea.innerHTML = stringed
 }
 
 function preprocessImage(canvas) {
