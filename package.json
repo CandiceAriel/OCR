@@ -5,8 +5,8 @@
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "bundle": "node_modules/.bin/browserify ./src/functions.js > ./dist/bundle.js",
-    "babelify": "node_modules/.bin/browserify ./src/functions.js > ./dist/bundle.js -t babelify"
+    "bundle": "browserify ./src/functions.js > ./dist/bundle.js",
+    "babelify": "browserify ./src/functions.js > ./dist/bundle.js -t babelify"
   },
   "author": "Nathaniel Sebastian & Candice Ariel",
   "license": "ISC",
