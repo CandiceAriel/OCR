@@ -1,6 +1,4 @@
 // const { createWorker, PSM} = Tesseract;
-var promises_1 = require("fs").promises;
-const { log } = require("console");
 const { createWorker } = require("tesseract.js");
 const parse = require("mrz").parse;
 
