@@ -39,11 +39,53 @@ function drawImage(url) {
     const dataURL = canvas2.toDataURL("image/jpeg");
 
     preprocessImage(canvas2);
-    scanImg(dataURL, "spa+ces");
+    
+    if(docType === "passport"){
+      scanPassport(dataURL, "spa+ces");
+    } else scanImg(dataURL, "spa+ces")
   };
 }
 
 async function scanImg(src, lang) {
+  const dtTxt = [];
+  
+  //use worker
+  const worker = await createWorker({});
+  await worker.loadLanguage(lang); // 2
+  await worker.initialize(lang);
+  await worker.setParameters({
+    tessedit_char_whitelist:
+      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789<",
+    preserve_interword_spaces: "10",
+  });
+  const {
+    data: { text, words },
+  } = await worker.recognize(src);
+  await worker.terminate();
+
+  const textRegions = words.map((word) => word.bbox);
+  ctx2.lineWidth = 2;
+  ctx2.strokeStyle = "red";
+  textRegions.forEach((region) => {
+    ctx2.beginPath();
+    ctx2.rect(
+      region.x0,
+      region.y0,
+      region.x1 - region.x0,
+      region.y1 - region.y0
+    );
+    ctx2.stroke();
+  });
+
+  const textVal = words.map((word) => word.text);
+  textVal.forEach((txt) => {
+    dtTxt.push(txt);
+  });
+  
+  textarea.innerHTML = text;
+}
+
+async function scanPassport(src, lang) {
   const dtTxt = [];
   // Tesseract.recognize(
   //   src,
@@ -112,9 +154,7 @@ async function scanImg(src, lang) {
     dtTxt.push(txt);
   });
 
-  if(docType === "passport"){
-    parseMRZ(text);
-  }
+  parseMRZ(text);
 }
 
 function parseMRZ(mrzTxt) {
