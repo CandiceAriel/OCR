@@ -142,7 +142,7 @@ function parseMRZ(mrzTxt) {
   const mrzRes = result.details.map((dt) => dt.value);
   ressArr.push(mrzRes);
 
-  console.log(mrzRes);
+  // console.log(mrzRes);
   const stringed = JSON.stringify(mrzRes);
   // console.log(stringed);
   textarea.innerHTML = 
