@@ -8,7 +8,7 @@ const canvas2 = document.getElementById("cv2");
 const ctx = cv1.getContext("2d");
 const ctx2 = cv2.getContext("2d");
 
-let docType;
+var docType = 'ktp';
 
 document.querySelector('input[type="file"]').onchange = function () {
   let img = this.files[0];
@@ -21,8 +21,9 @@ document.querySelector('input[type="file"]').onchange = function () {
 
 $('#doc-type').change(function(){
   docType = $(this).val()
-  console.log(docType)
+  textarea.innerHTML = "";
 })
+console.log(docType)
 
 function drawImage(url) {
   let image = new Image();
@@ -38,14 +39,17 @@ function drawImage(url) {
     ctx2.drawImage(image, 0, 0);
     const dataURL = canvas2.toDataURL("image/jpeg");
 
-    preprocessImage(canvas2);
+    // preprocessImage(canvas2);
     
+    //Set different methods of scanning and preprocessing based on Doc type
     if(docType === "passport"){
       scanPassport(dataURL, "spa+ces");
+      preprocessImagePassport(canvas2);
     } else scanImg(dataURL, "spa+ces")
   };
 }
 
+//For General Doc and ID
 async function scanImg(src, lang) {
   const dtTxt = [];
   
@@ -85,6 +89,7 @@ async function scanImg(src, lang) {
   textarea.innerHTML = text;
 }
 
+//For Passport
 async function scanPassport(src, lang) {
   const dtTxt = [];
   // Tesseract.recognize(
@@ -205,7 +210,7 @@ function parseMRZ(mrzTxt) {
   
 }
 
-function preprocessImage(canvas) {
+function preprocessImagePassport(canvas) {
   convertToGrayscale(canvas);
   increaseContrast(canvas);
 }

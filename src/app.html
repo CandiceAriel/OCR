@@ -10,22 +10,25 @@
   </head>
   <body>
     <div class="content">
-      <div class="content-input">
-        <label for="docs">Choose document type to scan:</label>
-
-        <select id="doc-type">
-          <option value="ktp">ID</option>
-          <option value="passport">Passport</option>
-          <option value="general-docs">General Documents</option>
-        </select>
-        <input type="file" id="upload" />
+      <div class="content-left">
+        <div class="content-input">
+          <label for="docs">Choose document type to scan:</label>
+  
+          <select id="doc-type">
+            <option value="ktp">ID</option>
+            <option value="passport">Passport</option>
+            <option value="general-docs">General Documents</option>
+          </select>
+          <input type="file" id="upload" />
+        </div>
+        <div class="file-container">
+          <h3>PreProcessed Image</h3>
+          <canvas id="cv2" class="img-canvas"></canvas>
+          <h3>Original Image</h3>
+          <canvas id="cv1" class="img-canvas"></canvas>
+          <!-- <button class="btn-scan" onclick="scanImg(dataURI);" id="snip"> Scan </button> -->
+        </div>
       </div>
-      <div class="file-container">
-        <canvas id="cv1" class="img-canvas"></canvas>
-        <canvas id="cv2" class="img-canvas"></canvas>
-        <!-- <button class="btn-scan" onclick="scanImg(dataURI);" id="snip"> Scan </button> -->
-      </div>
-      <div id="progress"></div>
       <textarea id="textarea"></textarea>
     </div>
 
