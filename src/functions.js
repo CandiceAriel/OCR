@@ -2,12 +2,13 @@
 const { createWorker } = require("tesseract.js");
 const parse = require("mrz").parse;
 
-const progress = document.getElementById("progress");
 const textarea = document.getElementById("textarea");
 const canvas = document.getElementById("cv1");
 const canvas2 = document.getElementById("cv2");
 const ctx = cv1.getContext("2d");
 const ctx2 = cv2.getContext("2d");
+
+let docType;
 
 document.querySelector('input[type="file"]').onchange = function () {
   let img = this.files[0];
@@ -17,6 +18,11 @@ document.querySelector('input[type="file"]').onchange = function () {
     drawImage(reader.result);
   };
 };
+
+$('#doc-type').change(function(){
+  docType = $(this).val()
+  console.log(docType)
+})
 
 function drawImage(url) {
   let image = new Image();
@@ -106,7 +112,9 @@ async function scanImg(src, lang) {
     dtTxt.push(txt);
   });
 
-  parseMRZ(text);
+  if(docType === "passport"){
+    parseMRZ(text);
+  }
 }
 
 function parseMRZ(mrzTxt) {
@@ -139,11 +147,11 @@ function parseMRZ(mrzTxt) {
   // console.log(stringed);
   textarea.innerHTML = 
   "MRZ Scanner = " + "\n" + line1 + "\n" + line2 + "\n" + "\n" +
-  "Document Code = " + mrzRes[0] + "\n" + 
-  "Issuing State = " + mrzRes[1] + "\n" + 
-  "Last Name = " + mrzRes[2] + "\n" +
-  "First Name = " + mrzRes[3] + "\n" +
-  "Document Number = " + mrzRes[4] + "\n" +
+  "Type/Type = " + mrzRes[0] + "\n" + 
+  "Issuing Country = " + mrzRes[1] + "\n" + 
+  "Surname = " + mrzRes[2] + "\n" +
+  "Given Names = " + mrzRes[3] + "\n" +
+  "Passport No. = " + mrzRes[4] + "\n" +
   "Document NumberCheckDigit = " + mrzRes[5] + "\n" +
   "Nationality = " + mrzRes[6] + "\n" +
   "BirthDate = " + mrzRes[7] + "\n" +

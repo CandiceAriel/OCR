@@ -6,11 +6,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <link rel="stylesheet" href="styles.css" />
-    <script src="https://www.marvinj.org/releases/marvinj-1.0.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js" integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=" crossorigin="anonymous"></script>
   </head>
   <body>
     <div class="content">
-      <input type="file" id="upload" />
+      <div class="content-input">
+        <label for="docs">Choose document type to scan:</label>
+
+        <select id="doc-type">
+          <option value="ktp">ID</option>
+          <option value="passport">Passport</option>
+          <option value="general-docs">General Documents</option>
+        </select>
+        <input type="file" id="upload" />
+      </div>
       <div class="file-container">
         <canvas id="cv1" class="img-canvas"></canvas>
         <canvas id="cv2" class="img-canvas"></canvas>
@@ -20,8 +29,9 @@
       <textarea id="textarea"></textarea>
     </div>
 
-    <script src="../node_modules/tesseract.js/dist/tesseract.min.js"></script>
-    <script src="../src/fncgeneral.js"></script>
+    <!--SCRIPTS-->
+    <!-- <script src="../node_modules/tesseract.js/dist/tesseract.min.js"></script>
+    <script src="../src/fncgeneral.js"></script> -->
     <!-- <script src="../src/app.js"></script> -->
     <script src="../dist/bundle.js"></script>
   </body>
