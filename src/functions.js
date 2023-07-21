@@ -70,7 +70,7 @@ async function scanGeneralDoc(src, lang) {
     tessedit_char_whitelist: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789<",
     preserve_interword_spaces: "1",
   });
-  const res = await worker.recognize(src);
+  const res = await worker.recognize(canvas2);
   const res_words = res.data.words;
   const res_text = res.data.text;
   console.log(res.data)
