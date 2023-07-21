@@ -22,8 +22,8 @@ document.querySelector('input[type="file"]').onchange = function () {
 $("#doc-type").change(function () {
   docType = $(this).val();
   textarea.innerHTML = "";
-});
-console.log(docType);
+  drawImage("");
+})
 
 function drawImage(url) {
   let image = new Image();
@@ -70,12 +70,12 @@ async function scanGeneralDoc(src, lang) {
     tessedit_char_whitelist: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789<",
     preserve_interword_spaces: "1",
   });
-  const {
-    data: { text, words },
-  } = await worker.recognize(canvas2);
-  await worker.terminate();
+  const res = await worker.recognize(src);
+  const res_words = res.data.words;
+  const res_text = res.data.text;
+  console.log(res.data)
 
-  const textRegions = words.map((word) => word.bbox);
+  const textRegions = res_words.map((word) => word.bbox);
   ctx2.lineWidth = 2;
   ctx2.strokeStyle = "red";
   textRegions.forEach((region) => {
@@ -89,12 +89,12 @@ async function scanGeneralDoc(src, lang) {
     ctx2.stroke();
   });
 
-  const textVal = words.map((word) => word.text);
+  const textVal = res_words.map((word) => word.text);
   textVal.forEach((txt) => {
     dtTxt.push(txt);
   });
-
-  textarea.innerHTML = text;
+  
+  textarea.innerHTML = res_text;
 }
 
 //For Passport
@@ -143,12 +143,12 @@ async function scanPassport(src, lang) {
       "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789<#-",
     preserve_interword_spaces: "10",
   });
-  const {
-    data: { text, words },
-  } = await worker.recognize(src);
-  await worker.terminate();
+  const res = await worker.recognize(src);
+  const res_words = res.data.words;
+  const res_text = res.data.text;
+  console.log(res.data)
 
-  const textRegions = words.map((word) => word.bbox);
+  const textRegions = res_words.map((word) => word.bbox);
   ctx2.lineWidth = 2;
   ctx2.strokeStyle = "red";
   textRegions.forEach((region) => {
@@ -162,12 +162,12 @@ async function scanPassport(src, lang) {
     ctx2.stroke();
   });
 
-  const textVal = words.map((word) => word.text);
+  const textVal = res_words.map((word) => word.text);
   textVal.forEach((txt) => {
     dtTxt.push(txt);
   });
 
-  parseMRZ(text);
+  parseMRZ(res_text);
 }
 
 function parseMRZ(mrzTxt) {
