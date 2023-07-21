@@ -8,7 +8,7 @@ const canvas2 = document.getElementById("cv2");
 const ctx = cv1.getContext("2d");
 const ctx2 = cv2.getContext("2d");
 
-var docType = 'ktp';
+var docType = "";
 
 document.querySelector('input[type="file"]').onchange = function () {
   let img = this.files[0];
@@ -19,11 +19,11 @@ document.querySelector('input[type="file"]').onchange = function () {
   };
 };
 
-$('#doc-type').change(function(){
-  docType = $(this).val()
+$("#doc-type").change(function () {
+  docType = $(this).val();
   textarea.innerHTML = "";
-})
-console.log(docType)
+});
+console.log(docType);
 
 function drawImage(url) {
   let image = new Image();
@@ -40,31 +40,39 @@ function drawImage(url) {
     const dataURL = canvas2.toDataURL("image/jpeg");
 
     // preprocessImage(canvas2);
-    
+
     //Set different methods of scanning and preprocessing based on Doc type
-    if(docType === "passport"){
+    if (docType === "ktp") {
+      scanImg(dataURL, "spa+ces");
+    } else if (docType === "passport") {
       scanPassport(dataURL, "spa+ces");
       preprocessImagePassport(canvas2);
-    } else scanImg(dataURL, "spa+ces")
+    } else if (docType === "general-docs") {
+      
+      scanGeneralDoc(dataURL, "eng");
+    } else {
+      console.log("error");
+    }
   };
 }
 
-//For General Doc and ID
-async function scanImg(src, lang) {
+//For General Doc
+async function scanGeneralDoc(src, lang) {
+
+  preprocessImageGeneralDoc(canvas2);
   const dtTxt = [];
-  
+
   //use worker
   const worker = await createWorker({});
   await worker.loadLanguage(lang); // 2
   await worker.initialize(lang);
   await worker.setParameters({
-    tessedit_char_whitelist:
-      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789<",
-    preserve_interword_spaces: "10",
+    tessedit_char_whitelist: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789<",
+    preserve_interword_spaces: "1",
   });
   const {
     data: { text, words },
-  } = await worker.recognize(src);
+  } = await worker.recognize(canvas2);
   await worker.terminate();
 
   const textRegions = words.map((word) => word.bbox);
@@ -85,7 +93,7 @@ async function scanImg(src, lang) {
   textVal.forEach((txt) => {
     dtTxt.push(txt);
   });
-  
+
   textarea.innerHTML = text;
 }
 
@@ -132,7 +140,7 @@ async function scanPassport(src, lang) {
   await worker.initialize(lang);
   await worker.setParameters({
     tessedit_char_whitelist:
-      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789<",
+      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789<#-",
     preserve_interword_spaces: "10",
   });
   const {
@@ -190,29 +198,68 @@ function parseMRZ(mrzTxt) {
   // console.log(mrzRes);
   const stringed = JSON.stringify(mrzRes);
   // console.log(stringed);
-  textarea.innerHTML = 
-  "MRZ Scanner = " + "\n" + line1 + "\n" + line2 + "\n" + "\n" +
-  "Type/Type = " + mrzRes[0] + "\n" + 
-  "Issuing Country = " + mrzRes[1] + "\n" + 
-  "Surname = " + mrzRes[2] + "\n" +
-  "Given Names = " + mrzRes[3] + "\n" +
-  "Passport No. = " + mrzRes[4] + "\n" +
-  "Document NumberCheckDigit = " + mrzRes[5] + "\n" +
-  "Nationality = " + mrzRes[6] + "\n" +
-  "BirthDate = " + mrzRes[7] + "\n" +
-  "BirthDate CheckDigit = " + mrzRes[8] + "\n" +
-  "Sex = " + mrzRes[9] + "\n" +
-  "Expiration Date = " + mrzRes[10] + "\n" +
-  "Expiration DateCheckDigit = " + mrzRes[11] + "\n" +
-  "Personal Number = " + mrzRes[12] + "\n" +
-  "Personal Number CheckDigit = " + mrzRes[13] + "\n" +
-  "Composite CheckDigit = " + mrzRes[14];
-  
+  textarea.innerHTML =
+    "MRZ Scanner = " +
+    "\n" +
+    line1 +
+    "\n" +
+    line2 +
+    "\n" +
+    "\n" +
+    "Type/Type = " +
+    mrzRes[0] +
+    "\n" +
+    "Issuing Country = " +
+    mrzRes[1] +
+    "\n" +
+    "Surname = " +
+    mrzRes[2] +
+    "\n" +
+    "Given Names = " +
+    mrzRes[3] +
+    "\n" +
+    "Passport No. = " +
+    mrzRes[4] +
+    "\n" +
+    "Document NumberCheckDigit = " +
+    mrzRes[5] +
+    "\n" +
+    "Nationality = " +
+    mrzRes[6] +
+    "\n" +
+    "BirthDate = " +
+    mrzRes[7] +
+    "\n" +
+    "BirthDate CheckDigit = " +
+    mrzRes[8] +
+    "\n" +
+    "Sex = " +
+    mrzRes[9] +
+    "\n" +
+    "Expiration Date = " +
+    mrzRes[10] +
+    "\n" +
+    "Expiration DateCheckDigit = " +
+    mrzRes[11] +
+    "\n" +
+    "Personal Number = " +
+    mrzRes[12] +
+    "\n" +
+    "Personal Number CheckDigit = " +
+    mrzRes[13] +
+    "\n" +
+    "Composite CheckDigit = " +
+    mrzRes[14];
 }
 
 function preprocessImagePassport(canvas) {
   convertToGrayscale(canvas);
   increaseContrast(canvas);
+}
+
+function preprocessImageGeneralDoc(canvas) {
+  // Crop gambar di bagian kanan
+  cropImage(canvas, 600, 0, 200, 275);
 }
 
 function convertToGrayscale(cv) {
@@ -248,4 +295,38 @@ function increaseContrast(cv) {
     }
   }
   cvDt.putImageData(imageData, 0, 0);
+}
+
+function cropImage(canvas, topBoundary, rightBoundary, bottomBoundary, leftBoundary) {
+  const ctx = canvas.getContext("2d");
+  const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+  // Hanya ambil piksel di bagian atas, kanan, bawah, dan kiri gambar
+  for (let y = 0; y < topBoundary; y++) {
+    for (let x = 0; x < canvas.width; x++) {
+      const pixelIndex = (y * canvas.width + x) * 4;
+      imageData.data[pixelIndex + 3] = 0; // Atur alpha channel ke 0 (transparan)
+    }
+  }
+
+  for (let y = topBoundary; y < canvas.height - bottomBoundary; y++) {
+    for (let x = 0; x < leftBoundary; x++) {
+      const pixelIndex = (y * canvas.width + x) * 4;
+      imageData.data[pixelIndex + 3] = 0; // Atur alpha channel ke 0 (transparan)
+    }
+
+    for (let x = canvas.width - rightBoundary; x < canvas.width; x++) {
+      const pixelIndex = (y * canvas.width + x) * 4;
+      imageData.data[pixelIndex + 3] = 0; // Atur alpha channel ke 0 (transparan)
+    }
+  }
+
+  for (let y = canvas.height - bottomBoundary; y < canvas.height; y++) {
+    for (let x = 0; x < canvas.width; x++) {
+      const pixelIndex = (y * canvas.width + x) * 4;
+      imageData.data[pixelIndex + 3] = 0; // Atur alpha channel ke 0 (transparan)
+    }
+  }
+
+  ctx.putImageData(imageData, 0, 0);
 }
