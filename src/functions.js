@@ -8,7 +8,7 @@ const canvas2 = document.getElementById("cv2");
 const ctx = cv1.getContext("2d");
 const ctx2 = cv2.getContext("2d");
 
-var docType = "";
+var docType = "ktp";
 
 document.querySelector('input[type="file"]').onchange = function () {
   let img = this.files[0];
@@ -24,6 +24,7 @@ $("#doc-type").change(function () {
   textarea.innerHTML = "";
   drawImage("");
 })
+console.log(docType)
 
 function drawImage(url) {
   let image = new Image();
@@ -48,7 +49,6 @@ function drawImage(url) {
       scanPassport(dataURL, "spa+ces");
       preprocessImagePassport(canvas2);
     } else if (docType === "general-docs") {
-      
       scanGeneralDoc(dataURL, "eng");
     } else {
       console.log("error");
@@ -70,7 +70,7 @@ async function scanGeneralDoc(src, lang) {
     tessedit_char_whitelist: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789<",
     preserve_interword_spaces: "1",
   });
-  const res = await worker.recognize(canvas2);
+  const res = await worker.recognize(src);
   const res_words = res.data.words;
   const res_text = res.data.text;
   console.log(res.data)
@@ -94,6 +94,46 @@ async function scanGeneralDoc(src, lang) {
     dtTxt.push(txt);
   });
   
+  textarea.innerHTML = res_text;
+}
+
+//For Passport
+async function scanImg(src, lang) {
+  const dtTxt = [];
+
+  //use worker
+  const worker = await createWorker({});
+  await worker.loadLanguage(lang); // 2
+  await worker.initialize(lang);
+  await worker.setParameters({
+    tessedit_char_whitelist:
+      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789<#-",
+    preserve_interword_spaces: "10",
+  });
+  const res = await worker.recognize(src);
+  const res_words = res.data.words;
+  const res_text = res.data.text;
+  console.log(res.data)
+
+  const textRegions = res_words.map((word) => word.bbox);
+  ctx2.lineWidth = 2;
+  ctx2.strokeStyle = "red";
+  textRegions.forEach((region) => {
+    ctx2.beginPath();
+    ctx2.rect(
+      region.x0,
+      region.y0,
+      region.x1 - region.x0,
+      region.y1 - region.y0
+    );
+    ctx2.stroke();
+  });
+
+  const textVal = res_words.map((word) => word.text);
+  textVal.forEach((txt) => {
+    dtTxt.push(txt);
+  });
+
   textarea.innerHTML = res_text;
 }
 
