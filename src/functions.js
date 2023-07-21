@@ -24,7 +24,6 @@ $('#doc-type').change(function(){
   textarea.innerHTML = "";
   drawImage("");
 })
-console.log(docType)
 
 function drawImage(url) {
   let image = new Image();
@@ -66,6 +65,7 @@ async function scanImg(src, lang) {
   const res = await worker.recognize(src);
   const res_words = res.data.words;
   const res_text = res.data.text;
+  console.log(res.data)
 
   const textRegions = res_words.map((word) => word.bbox);
   ctx2.lineWidth = 2;
@@ -138,6 +138,7 @@ async function scanPassport(src, lang) {
   const res = await worker.recognize(src);
   const res_words = res.data.words;
   const res_text = res.data.text;
+  console.log(res.data)
 
   const textRegions = res_words.map((word) => word.bbox);
   ctx2.lineWidth = 2;
