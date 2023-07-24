@@ -43,23 +43,23 @@ function drawImage(url) {
     // preprocessImage(canvas2);
 
     //Set different methods of scanning and preprocessing based on Doc type
-    // if (docType === "ktp") {
-    //   scanImg(dataURL, "spa+ces");
-    // } else if (docType === "passport") {
-    //   scanPassport(dataURL, "spa+ces");
-    //   preprocessImagePassport(canvas2);
-    // } else if (docType === "general-docs") {
-    //   scanGeneralDoc(dataURL, "eng");
-    // } else {
-    //   console.log("error");
-    // }
-
-    if (docType === "passport") {
+    if (docType === "ktp") {
+      scanImg(dataURL, "spa+ces");
+    } else if (docType === "passport") {
       scanPassport(dataURL, "spa+ces");
       preprocessImagePassport(canvas2);
+    } else if (docType === "general-docs") {
+      scanGeneralDoc(dataURL, "eng");
     } else {
-      scanImg(dataURL, "eng");
+      console.log("error");
     }
+
+    // if (docType === "passport") {
+    //   scanPassport(dataURL, "spa+ces");
+    //   preprocessImagePassport(canvas2);
+    // } else {
+    //   scanImg(dataURL, "eng");
+    // }
   };
 }
 
