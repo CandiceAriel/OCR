@@ -53,13 +53,6 @@ function drawImage(url) {
     } else {
       console.log("error");
     }
-
-    // if (docType === "passport") {
-    //   scanPassport(dataURL, "spa+ces");
-    //   preprocessImagePassport(canvas2);
-    // } else {
-    //   scanImg(dataURL, "eng");
-    // }
   };
 }
 
@@ -74,10 +67,10 @@ async function scanGeneralDoc(src, lang) {
   await worker.loadLanguage(lang); // 2
   await worker.initialize(lang);
   await worker.setParameters({
-    tessedit_char_whitelist: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789<",
-    preserve_interword_spaces: "1",
+    tessedit_char_whitelist: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789<#,:()",
+    preserve_interword_spaces: true,
   });
-  const res = await worker.recognize(src);
+  const res = await worker.recognize(canvas2);
   const res_words = res.data.words;
   const res_text = res.data.text;
   console.log(res.data)
@@ -100,8 +93,23 @@ async function scanGeneralDoc(src, lang) {
   textVal.forEach((txt) => {
     dtTxt.push(txt);
   });
-  
-  textarea.innerHTML = res_text;
+ // Mengubah hasil teks menjadi array berdasarkan baris baru
+ const lines = res_text.split("\n");
+
+ // Membersihkan array dari elemen-elemen kosong (jika ada)
+ const cleanedLines = lines.filter((line) => line.trim() !== "");
+
+ // Hapus kata-kata spesifik dari array
+ const wordsToRemove = ["PassType", "PassExpiresOn", "Employer", "WorkingAddress", "Occupation","DateofApplicatio","VALID","Sector","IssuedOn", "DateofApplication","Y"];
+ const filteredLines = cleanedLines.map((line) => {
+   const words = line.split(" ").filter((word) => !wordsToRemove.includes(word));
+   return words.join(" ");
+ });
+
+ // Membersihkan array dari elemen-elemen dengan nilai string kosong
+ const finalResult = filteredLines.filter((line) => line !== "");
+
+ textarea.innerHTML = JSON.stringify(finalResult);
 }
 
 //For Passport
@@ -147,41 +155,6 @@ async function scanImg(src, lang) {
 //For Passport
 async function scanPassport(src, lang) {
   const dtTxt = [];
-  // Tesseract.recognize(
-  //   src,
-  //   lang, {
-  //   tessedit_char_whitelist:
-  //     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789<",
-  //   preserve_interword_spaces: "10",
-  // }).then(({ data }) => {
-  //   const detectedText = data.text; // Teks yang terdeteksi oleh Tesseract.js
-  //   console.log(data);
-
-  //   // Mengambil 2 baris terakhir
-  //   const lines = detectedText.split("\n");
-  //   const lastTwoLines = lines.slice(-3);
-  //   const mergedText = lastTwoLines.join("\n");
-
-  //   console.log(mergedText);
-
-  //   // Menggambar kotak merah di sekitar teks yang terdeteksi
-  //   const textRegions = data.words.map((word) => word.bbox);
-  //   ctx2.lineWidth = 2;
-  //   ctx2.strokeStyle = "red";
-  //   textRegions.forEach((region) => {
-  //     ctx2.beginPath();
-  //     ctx2.rect(
-  //       region.x0,
-  //       region.y0,
-  //       region.x1 - region.x0,
-  //       region.y1 - region.y0
-  //     );
-  //     ctx2.stroke();
-  //   });
-  // });
-
-  //use worker
-
   const worker = await createWorker({});
   await worker.loadLanguage(lang); // 2
   await worker.initialize(lang);
@@ -306,7 +279,7 @@ function preprocessImagePassport(canvas) {
 
 function preprocessImageGeneralDoc(canvas) {
   // Crop gambar di bagian kanan
-  cropImage(canvas, 600, 0, 200, 275);
+  cropImage(canvas, 368, 0, 150, 0);
 }
 
 function convertToGrayscale(cv) {
