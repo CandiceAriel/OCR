@@ -169,11 +169,18 @@ async function scanImg(src, lang) {
  // Membersihkan array dari elemen-elemen dengan nilai string kosong
  const finalResult = filteredLines.filter((line) => line !== "");
 
-// Menghapus spasi dari setiap elemen dalam array
-const cleanedResult = finalResult.map((line) => line.replace(/\s+/g, ''));
+// Menghapus spasi dari setiap elemen dalam array dan mengabaikan kata-kata dengan panjang tertentu
+const cleanedResult = finalResult.map((line) => {
+  const cleanedLine = line.replace(/\s+/g, '');
+  if (cleanedLine.length >= 7) {
+    return cleanedLine;
+  } else {
+    return '';
+  }
+});
 
-
- textarea.innerHTML = cleanedResult;
+// Mengisikan hasil ke dalam textarea
+textarea.innerHTML = cleanedResult.join('');
 
 }
 
@@ -305,7 +312,7 @@ function preprocessImagePassport(canvas) {
 
 function preprocessImg(canvas) {
   // Crop gambar di bagian kanan
-  cropImage(canvas, 150, 220, 270, 200);
+  cropImage(canvas, 170, 220, 270, 200);
 }
 
 function preprocessImageGeneralDoc(canvas) {
