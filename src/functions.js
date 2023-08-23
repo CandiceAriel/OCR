@@ -7,6 +7,8 @@ const canvas = document.getElementById("cv1");
 const canvas2 = document.getElementById("cv2");
 const ctx = cv1.getContext("2d");
 const ctx2 = cv2.getContext("2d");
+const defaultWidth = 100; // Lebar gambar default yang ditetapkan
+const defaultHeight = 100; // Tinggi gambar default yang ditetapkan
 
 var docType = "ktp";
 
@@ -124,7 +126,7 @@ async function scanImg(src, lang) {
   await worker.initialize(lang);
   await worker.setParameters({
     tessedit_char_whitelist:
-      "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz",
     preserve_interword_spaces: "0",
   });
   const res = await worker.recognize(canvas2);
@@ -151,7 +153,7 @@ async function scanImg(src, lang) {
     dtTxt.push(txt);
   });
 
-  // textarea.innerHTML = res_text;
+
 
  // Mengubah hasil teks menjadi array berdasarkan baris baru
  const lines = res_text.split("\n");
@@ -180,7 +182,21 @@ const cleanedResult = finalResult.map((line) => {
 });
 
 // Mengisikan hasil ke dalam textarea
-textarea.innerHTML = cleanedResult.join('');
+// textarea.innerHTML = cleanedResult.join('');
+
+  // Jika teks "Name" ditemukan dalam hasil scan
+  if (cleanedLines.includes("Name")) {
+    const nameIndex = cleanedLines.indexOf("Name");
+    const nextDataIndex = nameIndex + 1;
+  
+    if (nextDataIndex < cleanedLines.length) {
+      const nextData = cleanedLines[nextDataIndex].trim();
+      textarea.innerHTML = nextData;
+    } else {
+      textarea.innerHTML = "No data'";
+    }
+  }
+  
 
 }
 
@@ -338,6 +354,20 @@ function setZoom(canvas2,zoomLevel) {
   canvas2.style.height = `${zoomLevel * 100}%`;
 }
 
+// Fungsi untuk mengecek apakah gambar perlu di-resize ke ukuran default
+function checkAndResizeImage() {
+  if (canvas2.width !== defaultWidth || canvas2.height !== defaultHeight) {
+    resizeToDefault();
+  }
+}
+
+// Fungsi untuk meresize gambar ke ukuran default
+function resizeToDefault() {
+  let image = new Image();
+  canvas2.width = defaultWidth;
+  canvas2.height = defaultHeight;
+  ctx2.drawImage(image, 0, 0, defaultWidth, defaultHeight);
+}
 
 function convertToGrayscale(cv) {
   //Convert Img to Grayscale
