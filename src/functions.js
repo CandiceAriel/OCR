@@ -46,7 +46,7 @@ function drawImage(url) {
     if (docType === "ktp") {
       scanImg(dataURL, "eng");
     } else if (docType === "passport") {
-      scanPassport(dataURL, "ces");
+      scanPassport(dataURL, "spa+ces");
       // preprocessImagePassport(canvas2);
     } else if (docType === "general-docs") {
       scanGeneralDoc(dataURL, "eng");
@@ -100,7 +100,7 @@ async function scanGeneralDoc(src, lang) {
  const cleanedLines = lines.filter((line) => line.trim() !== "");
 
  // Hapus kata-kata spesifik dari array
- const wordsToRemove = ["PassType", "PassExpiresOn", "Employer", "WorkingAddress", "Occupation","DateofApplicatio","VALID","Sector","IssuedOn", "DateofApplication","Y"];
+ const wordsToRemove = ["PassType", "PassExpiresOn", "Employer", "WorkingAddress", "Occupation","DateofApplicatio","VALID","Sector","IssuedOn", "DateofApplication","A","B","C","D","E","F", "G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"];
  const filteredLines = cleanedLines.map((line) => {
    const words = line.split(" ").filter((word) => !wordsToRemove.includes(word));
    return words.join(" ");
@@ -160,7 +160,7 @@ async function scanImg(src, lang) {
  const cleanedLines = lines.filter((line) => line.trim() !== "");
 
  // Hapus kata-kata spesifik dari array
- const wordsToRemove = ["WPN","A", "B","C","D","E","F", "G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z","DOMESTIC",","];
+ const wordsToRemove = ["WPN","A", "B","C","D","E","F", "G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z","DOMESTIC","SERVICE"];
  const filteredLines = cleanedLines.map((line) => {
    const words = line.split(" ").filter((word) => !wordsToRemove.includes(word));
    return words.join(" ");
@@ -188,13 +188,15 @@ textarea.innerHTML = cleanedResult.join('');
 async function scanPassport(src, lang) {
   const dtTxt = [];
   preprocessImagePassport(canvas2);
+  preprocessCropPassport(canvas2);
+ 
   const worker = await createWorker({});
   await worker.loadLanguage(lang); // 2
   await worker.initialize(lang);
   await worker.setParameters({
     tessedit_char_whitelist:
       "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789<#-",
-    preserve_interword_spaces: "10",
+    preserve_interword_spaces: "1",
   });
   const res = await worker.recognize(canvas2);
   const res_words = res.data.words;
@@ -310,15 +312,32 @@ function preprocessImagePassport(canvas) {
   increaseContrast(canvas);
 }
 
+// Crop Passport
+function preprocessCropPassport(canvas) {
+  // Crop gambar di bagian kanan
+  cropImage(canvas, 400, 0, 0, 0);
+  setZoom(canvas,1.5);
+}
+
+// Crop WP
 function preprocessImg(canvas) {
   // Crop gambar di bagian kanan
   cropImage(canvas, 170, 220, 270, 200);
 }
 
+// Crop SS WP
 function preprocessImageGeneralDoc(canvas) {
   // Crop gambar di bagian kanan
   cropImage(canvas, 368, 0, 150, 0);
 }
+
+// Fungsi untuk mengatur zoom pada elemen canvas
+function setZoom(canvas2,zoomLevel) {
+  // Ganti lebar dan tinggi elemen canvas sesuai dengan zoomLevel
+  canvas2.style.width = `${zoomLevel * 100}%`;
+  canvas2.style.height = `${zoomLevel * 100}%`;
+}
+
 
 function convertToGrayscale(cv) {
   //Convert Img to Grayscale
