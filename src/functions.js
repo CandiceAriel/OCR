@@ -69,7 +69,7 @@ async function scanGeneralDoc(src, lang) {
   await worker.loadLanguage(lang); // 2
   await worker.initialize(lang);
   await worker.setParameters({
-    tessedit_char_whitelist: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789<#,:()",
+    tessedit_char_whitelist: "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
     preserve_interword_spaces: true,
   });
   const res = await worker.recognize(canvas2);
@@ -108,8 +108,9 @@ async function scanGeneralDoc(src, lang) {
    return words.join(" ");
  });
 
- // Membersihkan array dari elemen-elemen dengan nilai string kosong
- const finalResult = filteredLines.filter((line) => line !== "");
+
+// Membersihkan array dari elemen-elemen dengan nilai string kosong dan panjang kata <= 5
+const finalResult = filteredLines.filter((line) => line !== "" && line.length > 5);
 
  textarea.innerHTML = JSON.stringify(finalResult);
 }
@@ -162,7 +163,7 @@ async function scanImg(src, lang) {
  const cleanedLines = lines.filter((line) => line.trim() !== "");
 
  // Hapus kata-kata spesifik dari array
- const wordsToRemove = ["WPN","A", "B","C","D","E","F", "G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z","DOMESTIC","SERVICE"];
+ const wordsToRemove = ["WPN","A", "B","C","D","E","F", "G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z","DOMESTIC","SERVICE","CONSTRUCTION"];
  const filteredLines = cleanedLines.map((line) => {
    const words = line.split(" ").filter((word) => !wordsToRemove.includes(word));
    return words.join(" ");
@@ -193,7 +194,7 @@ const cleanedResult = finalResult.map((line) => {
       const nextData = cleanedLines[nextDataIndex].trim();
       textarea.innerHTML = nextData;
     } else {
-      textarea.innerHTML = "No data'";
+      textarea.innerHTML = "No data";
     }
   }
   
@@ -338,13 +339,13 @@ function preprocessCropPassport(canvas) {
 // Crop WP
 function preprocessImg(canvas) {
   // Crop gambar di bagian kanan
-  cropImage(canvas, 170, 220, 270, 200);
+  cropImage(canvas, 170, 220, 250, 200);
 }
 
 // Crop SS WP
 function preprocessImageGeneralDoc(canvas) {
   // Crop gambar di bagian kanan
-  cropImage(canvas, 368, 0, 150, 0);
+  cropImage(canvas, 250, 0, 780, 0);
 }
 
 // Fungsi untuk mengatur zoom pada elemen canvas
@@ -390,7 +391,7 @@ function increaseContrast(cv) {
   const imgData = imageData.data;
   // Inncrease contrast
   for (let i = 0; i < imgData.length; i += 4) {
-    if (imgData[i] < 124) {
+    if (imgData[i] < 130) {
       // Can be adjusted
       imgData[i] = 0; // R
       imgData[i + 1] = 0; // G
